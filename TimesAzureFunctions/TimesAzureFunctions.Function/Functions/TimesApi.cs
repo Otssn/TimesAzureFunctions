@@ -206,7 +206,7 @@ namespace TimesAzureFunctions.Function.Functions
                 return new BadRequestObjectResult(new Response
                 {
                     IsSuccess = false,
-                    Message = "Todo not found"
+                    Message = "Register not found"
                 });
             }
 
