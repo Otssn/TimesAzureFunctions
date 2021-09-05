@@ -1,13 +1,13 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 using TimesAzureFunctions.common.Model;
 using TimesAzureFunctions.common.Responses;
 using TimesAzureFunctions.Function.Entities;
@@ -36,6 +36,7 @@ namespace TimesAzureFunctions.Function.Functions
                     Message = "The request must have a Id"
                 });
             }
+
             string filter = TableQuery.GenerateFilterConditionForInt("Id", QueryComparisons.Equal, time.Id);
             TableQuery<TimeEntity> query = new TableQuery<TimeEntity>().Where(filter);
             TableQuerySegment<TimeEntity> registers = await timeTable.ExecuteQuerySegmentedAsync(query, null);
@@ -132,7 +133,7 @@ namespace TimesAzureFunctions.Function.Functions
             //Validate register id
             TableOperation findOperation = TableOperation.Retrieve<TimeEntity>("TIME", id);
             TableResult findResult = await timeTable.ExecuteAsync(findOperation);
-            if(findResult.Result == null)
+            if (findResult.Result == null)
             {
                 return new BadRequestObjectResult(new Response
                 {
