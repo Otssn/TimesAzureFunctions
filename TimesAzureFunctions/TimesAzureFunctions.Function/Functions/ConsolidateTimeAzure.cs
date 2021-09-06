@@ -33,13 +33,16 @@ namespace TimesAzureFunctions.Function.Functions
             TableQuery<TimeEntity> query2 = new TableQuery<TimeEntity>();
             TableQuerySegment<TimeEntity> timis = await timeTable.ExecuteQuerySegmentedAsync(query2, null);
 
+            int creadRegister = 0;
+            int updateRegister = 0;
+
             TimeEntity[] tiea = timis.Results.ToArray();
             if (tiea.Length == 0)
             {
                 return new OkObjectResult(new Response
                 {
                     IsSuccess = true,
-                    Message = "Register not found for table time"
+                    Message = $"Records add: {creadRegister}, records updated: {updateRegister}"
                 });
             }
 
@@ -52,10 +55,10 @@ namespace TimesAzureFunctions.Function.Functions
 
             if (registers.Results == null)
             {
-                return new BadRequestObjectResult(new Response
+                return new OkObjectResult(new Response
                 {
-                    IsSuccess = false,
-                    Message = "Register not found"
+                    IsSuccess = true,
+                    Message = $"Records add: {creadRegister}, records updated: {updateRegister}"
                 });
             }
 
@@ -161,6 +164,7 @@ namespace TimesAzureFunctions.Function.Functions
                                 {
                                     TableOperation addOperation9 = TableOperation.Replace(centity);
                                     await consolidateprocess.ExecuteAsync(addOperation9);
+                                    updateRegister++;
                                 }
                                 else
                                 {
@@ -175,6 +179,7 @@ namespace TimesAzureFunctions.Function.Functions
                                     };
                                     TableOperation addOperation = TableOperation.Insert(consolidate);
                                     await consolidateprocess.ExecuteAsync(addOperation);
+                                    creadRegister++;
                                 }
 
                                 ts = auxreg[i + 1].dateCreate - auxreg[i].dateCreate;
@@ -205,6 +210,7 @@ namespace TimesAzureFunctions.Function.Functions
                             {
                                 TableOperation addOperation9 = TableOperation.Replace(centity);
                                 await consolidateprocess.ExecuteAsync(addOperation9);
+                                updateRegister++;
                             }
                             else
                             {
@@ -219,6 +225,7 @@ namespace TimesAzureFunctions.Function.Functions
                                 };
                                 TableOperation addOperation = TableOperation.Insert(consolidate);
                                 await consolidateprocess.ExecuteAsync(addOperation);
+                                creadRegister++;
                             }
 
                             ts = auxreg[i + 1].dateCreate - auxreg[i].dateCreate;
@@ -265,6 +272,7 @@ namespace TimesAzureFunctions.Function.Functions
                         {
                             TableOperation addOperation9 = TableOperation.Replace(centity);
                             await consolidateprocess.ExecuteAsync(addOperation9);
+                            updateRegister++;
                         }
                         else
                         {
@@ -279,11 +287,13 @@ namespace TimesAzureFunctions.Function.Functions
                             };
                             TableOperation addOperation = TableOperation.Insert(consolidate);
                             await consolidateprocess.ExecuteAsync(addOperation);
+                            creadRegister++;
                         }
                     }
                 }
             }
             auxD = auxreg[auxreg.Length - 1].dateCreate.Date.ToString().Split("");
+            sw = 0;
             if (auxreg[auxreg.Length - 1].type == 1 && auxreg[auxreg.Length - 2].type == 0)
             {
                 for (int j = 0; j < reg2.Length; j++)
@@ -301,6 +311,7 @@ namespace TimesAzureFunctions.Function.Functions
                 {
                     TableOperation addOperation9 = TableOperation.Replace(centity);
                     await consolidateprocess.ExecuteAsync(addOperation9);
+                    updateRegister++;
                 }
                 else
                 {
@@ -315,6 +326,7 @@ namespace TimesAzureFunctions.Function.Functions
                     };
                     TableOperation addOperation = TableOperation.Insert(consolidate);
                     await consolidateprocess.ExecuteAsync(addOperation);
+                    creadRegister++;
                 }
                 timeEntity = auxreg[auxreg.Length - 1];
                 timeEntity.consolidate = true;
@@ -346,7 +358,7 @@ namespace TimesAzureFunctions.Function.Functions
             return new OkObjectResult(new Response
             {
                 IsSuccess = true,
-                Message = $"{reg.Length - 1}"
+                Message = $"Records add: {creadRegister}, records updated: {updateRegister}"
             });
         }
 

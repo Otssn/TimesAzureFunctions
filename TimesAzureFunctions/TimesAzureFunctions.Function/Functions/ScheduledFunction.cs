@@ -18,7 +18,6 @@ namespace TimesAzureFunctions.Function.Functions
             [Table("consolidateProcess", Connection = "AzureWebJobsStorage")] CloudTable consolidateprocess,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
 
             string filter = TableQuery.GenerateFilterConditionForBool("consolidate", QueryComparisons.Equal, false);
             TableQuery<TimeEntity> query = new TableQuery<TimeEntity>().Where(filter);
@@ -28,6 +27,8 @@ namespace TimesAzureFunctions.Function.Functions
             TableQuerySegment<consolidateEntity> registers2 = await consolidateprocess.ExecuteQuerySegmentedAsync(query3, null);
 
             TimeEntity[] tien = registers.Results.ToArray();
+            int creadRegister = 0;
+            int updateRegister = 0;
             if (tien.Length != 0)
             {
                 TimeEntity[] reg = registers.Results.ToArray();
@@ -123,6 +124,7 @@ namespace TimesAzureFunctions.Function.Functions
                                         {
                                             TableOperation addOperation9 = TableOperation.Replace(centity);
                                             await consolidateprocess.ExecuteAsync(addOperation9);
+                                            updateRegister++;
                                         }
                                         else
                                         {
@@ -137,6 +139,7 @@ namespace TimesAzureFunctions.Function.Functions
                                             };
                                             TableOperation addOperation3 = TableOperation.Insert(consolidate);
                                             await consolidateprocess.ExecuteAsync(addOperation3);
+                                            creadRegister++;
                                         }
 
                                         timeEntity = auxreg[i];
@@ -178,6 +181,7 @@ namespace TimesAzureFunctions.Function.Functions
                                     {
                                         TableOperation addOperation9 = TableOperation.Replace(centity);
                                         await consolidateprocess.ExecuteAsync(addOperation9);
+                                        updateRegister++;
                                     }
                                     else
                                     {
@@ -192,6 +196,7 @@ namespace TimesAzureFunctions.Function.Functions
                                         };
                                         TableOperation addOperation = TableOperation.Insert(consolidate);
                                         await consolidateprocess.ExecuteAsync(addOperation);
+                                        creadRegister++;
                                     }
 
                                     ts = auxreg[i + 1].dateCreate - auxreg[i].dateCreate;
@@ -238,6 +243,7 @@ namespace TimesAzureFunctions.Function.Functions
                                 {
                                     TableOperation addOperation9 = TableOperation.Replace(centity);
                                     await consolidateprocess.ExecuteAsync(addOperation9);
+                                    updateRegister++;
                                 }
                                 else
                                 {
@@ -252,6 +258,7 @@ namespace TimesAzureFunctions.Function.Functions
                                     };
                                     TableOperation addOperation = TableOperation.Insert(consolidate);
                                     await consolidateprocess.ExecuteAsync(addOperation);
+                                    creadRegister++;
                                 }
                                 timeEntity = auxreg[i];
                                 timeEntity.consolidate = true;
@@ -266,6 +273,7 @@ namespace TimesAzureFunctions.Function.Functions
                             }
                         }
                     }
+                    sw = 0;
                     auxD = auxreg[auxreg.Length - 1].dateCreate.Date.ToString().Split("");
                     if (auxreg[auxreg.Length - 1].type == 1 && auxreg[auxreg.Length - 2].type == 0)
                     {
@@ -284,6 +292,7 @@ namespace TimesAzureFunctions.Function.Functions
                         {
                             TableOperation addOperation9 = TableOperation.Replace(centity);
                             await consolidateprocess.ExecuteAsync(addOperation9);
+                            updateRegister++;
                         }
                         else
                         {
@@ -298,6 +307,7 @@ namespace TimesAzureFunctions.Function.Functions
                             };
                             TableOperation addOperation = TableOperation.Insert(consolidate);
                             await consolidateprocess.ExecuteAsync(addOperation);
+                            creadRegister++;
                         }
                         timeEntity = auxreg[auxreg.Length - 1];
                         timeEntity.consolidate = true;
@@ -330,6 +340,8 @@ namespace TimesAzureFunctions.Function.Functions
             {
 
             }
+            log.LogInformation("Proceses complet.");
+            log.LogInformation($"Records add: {creadRegister}, records updated: {updateRegister}");
         }
     }
 }
